@@ -42,3 +42,7 @@ Network Trash Folder
 Temporary Items
 .apdisk
 .jenkins-external
+
+lib/
+filebot/
+docker-compose.yml
