@@ -53,6 +53,19 @@ RUN \
   curl -o \
     /usr/share/GeoIP/GeoIP.dat -L --retry 10 --retry-max-time 60 --retry-all-errors \
     "https://infura-ipfs.io/ipfs/QmWTWcPRRbADZcLcJeANZmcJZNrcpmuQgKYBi6hGdddtC6" && \
+  # Install FileBot
+  echo "**** install filebot ****" && \
+  # Download sources.
+  curl -# -L https://sourceforge.net/projects/filebot/files/filebot/FileBot_4.7.9/FileBot_4.7.9-portable.tar.xz/download | tar xJ && \
+  # Install.
+  cp -v FileBot.jar /usr/bin/ && \
+  cp -v filebot.sh /usr/bin/filebot && \
+   # Dependencies.
+  apk add --no-cache --upgrade \
+    openjdk8-jre \
+    java-jna \
+    libmediainfo \
+    && \
   echo "**** cleanup ****" && \
   apk del --purge \
     build-dependencies && \
