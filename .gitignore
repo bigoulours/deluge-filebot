@@ -45,4 +45,5 @@ Temporary Items
 
 lib/
 filebot/
+config/
 docker-compose.yml

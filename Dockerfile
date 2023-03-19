@@ -1,4 +1,4 @@
-FROM ghcr.io/linuxserver/baseimage-alpine:edge
+FROM ghcr.io/linuxserver/baseimage-alpine:3.17
 
 ARG UNRAR_VERSION=6.1.7
 # set version label
@@ -35,12 +35,8 @@ RUN \
   cd /tmp/unrar && \
   make && \
   install -v -m755 unrar /usr/local/bin && \
-  if [ -z ${DELUGE_VERSION+x} ]; then \
-    DELUGE_VERSION=$(curl -sL "http://dl-cdn.alpinelinux.org/alpine/edge/community/x86_64/APKINDEX.tar.gz" | tar -xz -C /tmp \
-    && awk '/^P:deluge$/,/V:/' /tmp/APKINDEX | sed -n 2p | sed 's/^V://'); \
-  fi && \
   apk add -U --upgrade --no-cache \
-    deluge==${DELUGE_VERSION} && \  
+    deluge && \  
   echo "**** install python packages ****" && \
   python3 -m ensurepip && \
   pip3 install -U --no-cache-dir \
