@@ -56,6 +56,8 @@ RUN \
   # Install.
   cp -v FileBot.jar /usr/bin/ && \
   cp -v filebot.sh /usr/bin/filebot && \
+  mkdir -p /usr/bin/data/cache && \
+  chmod 777 -R /usr/bin/data/cache && \
    # Dependencies.
   apk add --no-cache --upgrade \
     openjdk8-jre \
