@@ -54,14 +54,16 @@ RUN \
   # Download sources.
   curl -# -L https://sourceforge.net/projects/filebot/files/filebot/FileBot_4.7.9/FileBot_4.7.9-portable.tar.xz/download | tar xJ && \
   # Install.
-  cp -v FileBot.jar /usr/bin/ && \
-  cp -v filebot.sh /usr/bin/filebot && \
-  mkdir -p /usr/bin/data/cache && \
-  chmod 777 -R /usr/bin/data/cache && \
-   # Dependencies.
+  mkdir -p /opt/filebot/lib/x86_64 && \
+  cp lib/x86_64/libjnidispatch.so /opt/filebot/lib/x86_64 && \
+  cp FileBot.jar /opt/filebot/ && \
+  cp filebot.sh /opt/filebot/ &&\
+  mkdir -p /opt/filebot/data && \
+  chmod 777 -R /opt/filebot/data && \
+  ln -s /opt/filebot/filebot.sh /usr/bin/filebot && \
+  # Dependencies
   apk add --no-cache --upgrade \
     openjdk8-jre \
-    java-jna \
     libmediainfo \
     && \
   echo "**** cleanup ****" && \
