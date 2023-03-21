@@ -53,6 +53,7 @@ RUN \
 ADD filebot /opt/filebot
 
 RUN \
+  mkdir /opt/filebot/data && \
   chmod 777 -R /opt/filebot/data && \
   ln -s /opt/filebot/filebot.sh /usr/bin/filebot && \
   # Dependencies
