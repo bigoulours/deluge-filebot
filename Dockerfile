@@ -48,17 +48,11 @@ RUN \
   echo "**** grab GeoIP database ****" && \
   curl -o \
     /usr/share/GeoIP/GeoIP.dat -L --retry 10 --retry-max-time 60 --retry-all-errors \
-    "https://infura-ipfs.io/ipfs/QmWTWcPRRbADZcLcJeANZmcJZNrcpmuQgKYBi6hGdddtC6" && \
-  # Install FileBot
-  echo "**** install filebot ****" && \
-  # Download sources.
-  curl -# -L https://sourceforge.net/projects/filebot/files/filebot/FileBot_4.7.9/FileBot_4.7.9-portable.tar.xz/download | tar xJ && \
-  # Install.
-  mkdir -p /opt/filebot/lib/x86_64 && \
-  cp lib/x86_64/libjnidispatch.so /opt/filebot/lib/x86_64 && \
-  cp FileBot.jar /opt/filebot/ && \
-  cp filebot.sh /opt/filebot/ &&\
-  mkdir -p /opt/filebot/data && \
+    "https://infura-ipfs.io/ipfs/QmWTWcPRRbADZcLcJeANZmcJZNrcpmuQgKYBi6hGdddtC6"
+
+ADD filebot /opt/filebot
+
+RUN \
   chmod 777 -R /opt/filebot/data && \
   ln -s /opt/filebot/filebot.sh /usr/bin/filebot && \
   # Dependencies
