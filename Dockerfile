@@ -11,6 +11,9 @@ LABEL maintainer="aptalca"
 # environment variables
 ENV PYTHON_EGG_CACHE="/config/plugins/.python-eggs"
 
+ENV FILEBOT_VERSION 4.7.19.1
+ENV FILEBOT_URL https://github.com/bigoulours/filebot/releases/download/$FILEBOT_VERSION/FileBot_$FILEBOT_VERSION-portable.tar.gz
+
 # install software
 RUN \
   echo "**** install build packages ****" && \
@@ -48,17 +51,20 @@ RUN \
   echo "**** grab GeoIP database ****" && \
   curl -o \
     /usr/share/GeoIP/GeoIP.dat -L --retry 10 --retry-max-time 60 --retry-all-errors \
-    "https://infura-ipfs.io/ipfs/QmWTWcPRRbADZcLcJeANZmcJZNrcpmuQgKYBi6hGdddtC6"
-
-ADD filebot /opt/filebot
-
-RUN \
-  mkdir /opt/filebot/data && \
+    "https://infura-ipfs.io/ipfs/QmWTWcPRRbADZcLcJeANZmcJZNrcpmuQgKYBi6hGdddtC6" && \
+  #Download Filebot
+  mkdir /tmp/filebot && \
+  curl -# -L -f ${FILEBOT_URL} | tar xz -C /tmp/filebot && \
+  mkdir -p /opt/filebot/data && \
+  mkdir -p /opt/filebot/lib/Linux-x86_64/ && \
+  cp /tmp/filebot/lib/Linux-x86_64/libjnidispatch.so /opt/filebot/lib/Linux-x86_64/ && \
+  cp -Rv /tmp/filebot/jar /opt/filebot/ && \
+  cp /tmp/filebot/filebot.sh /opt/filebot/ && \
   chmod 777 -R /opt/filebot/data && \
   ln -s /opt/filebot/filebot.sh /usr/bin/filebot && \
   # Dependencies
   apk add --no-cache --upgrade \
-    openjdk8-jre \
+    openjdk16-jre \
     libmediainfo \
     && \
   echo "**** cleanup ****" && \
