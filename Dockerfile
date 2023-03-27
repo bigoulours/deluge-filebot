@@ -56,10 +56,10 @@ RUN \
   mkdir /tmp/filebot && \
   curl -# -L -f ${FILEBOT_URL} | tar xz -C /tmp/filebot && \
   mkdir -p /opt/filebot/data && \
-  mkdir -p /opt/filebot/lib/Linux-x86_64/ && \
-  cp /tmp/filebot/lib/Linux-x86_64/libjnidispatch.so /opt/filebot/lib/Linux-x86_64/ && \
-  cp -Rv /tmp/filebot/jar /opt/filebot/ && \
+  mkdir -p /opt/filebot/lib/x86_64/ && \
+  cp /tmp/filebot/lib/x86_64/libjnidispatch.so /opt/filebot/lib/x86_64/ && \
   cp /tmp/filebot/filebot.sh /opt/filebot/ && \
+  cp /tmp/filebot/FileBot.jar /opt/filebot/ && \
   chmod 777 -R /opt/filebot/data && \
   ln -s /opt/filebot/filebot.sh /usr/bin/filebot && \
   # Dependencies
