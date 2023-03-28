@@ -2,7 +2,7 @@ name: Sync Fork
 
 on:
   schedule:
-    - cron: '0 0 * * *' # every day
+    - cron: '0 0 */3 * *' # every 3 days
   workflow_dispatch: # allow manual run
 
 env:
