@@ -1,4 +1,4 @@
-A fork of [linuxserver/docker-deluge](https://github.com/linuxserver/docker-deluge) with [filebot v4.7.9](https://sourceforge.net/projects/filebot/files/filebot/FileBot_4.7.9/) (last open source version) [patched](https://github.com/ayu69/filebot-patched) to make thetvdb work.
+A fork of [linuxserver/docker-deluge](https://github.com/linuxserver/docker-deluge) with [filebot v4.7](https://github.com/bigoulours/filebot) (last open source version) including support for the recent [filebot data](https://github.com/filebot/data).
 
 This container is meant to be used with [deluge-FileBotTool](https://github.com/Laharah/deluge-FileBotTool).
 
