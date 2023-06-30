@@ -1,6 +1,6 @@
 FROM ghcr.io/linuxserver/baseimage-alpine:3.17
 
-ARG UNRAR_VERSION=6.1.7
+ARG UNRAR_VERSION=6.2.8
 # set version label
 ARG BUILD_DATE
 ARG VERSION
@@ -18,14 +18,13 @@ ENV FILEBOT_URL https://github.com/bigoulours/filebot/releases/download/$FILEBOT
 RUN \
   echo "**** install build packages ****" && \
   apk add --no-cache --upgrade --virtual=build-dependencies \
-    make \
-    g++ \
-    gcc \
-    python3-dev && \
+    build-base && \
   echo "**** install packages ****" && \
   apk add --no-cache --upgrade --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
     python3 \
+    py3-future \
     py3-geoip \
+    py3-requests \
     p7zip && \
   echo "**** install unrar from source ****" && \
   mkdir /tmp/unrar && \
@@ -71,7 +70,7 @@ RUN \
   apk del --purge \
     build-dependencies && \
   rm -rf \
-    /root/.cache \
+    $HOME/.cache \
     /tmp/*
 
 # add local files
