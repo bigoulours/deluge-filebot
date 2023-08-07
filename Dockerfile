@@ -11,7 +11,7 @@ LABEL maintainer="aptalca"
 # environment variables
 ENV PYTHON_EGG_CACHE="/config/plugins/.python-eggs"
 
-ENV FILEBOT_VERSION 4.7.19.4
+ENV FILEBOT_VERSION 4.7.19.5
 ENV FILEBOT_URL https://github.com/bigoulours/filebot/releases/download/$FILEBOT_VERSION/FileBot_$FILEBOT_VERSION-portable.tar.gz
 
 # install software
