@@ -59,7 +59,7 @@ Find us at:
 
 # [linuxserver/deluge](https://github.com/linuxserver/docker-deluge)
 
-[![Scarf.io pulls](https://scarf.sh/installs-badge/linuxserver-ci/linuxserver%2Fdeluge?color=94398d&label-color=555555&logo-color=ffffff&style=for-the-badge&package-type=docker)](https://scarf.sh/gateway/linuxserver-ci/docker/linuxserver%2Fdeluge)
+[![Scarf.io pulls](https://scarf.sh/installs-badge/linuxserver-ci/linuxserver%2Fdeluge?color=94398d&label-color=555555&logo-color=ffffff&style=for-the-badge&package-type=docker)](https://scarf.sh)
 [![GitHub Stars](https://img.shields.io/github/stars/linuxserver/docker-deluge.svg?color=94398d&labelColor=555555&logoColor=ffffff&style=for-the-badge&logo=github)](https://github.com/linuxserver/docker-deluge)
 [![GitHub Release](https://img.shields.io/github/release/linuxserver/docker-deluge.svg?color=94398d&labelColor=555555&logoColor=ffffff&style=for-the-badge&logo=github)](https://github.com/linuxserver/docker-deluge/releases)
 [![GitHub Package Repository](https://img.shields.io/static/v1.svg?color=94398d&labelColor=555555&logoColor=ffffff&style=for-the-badge&label=linuxserver.io&message=GitHub%20Package&logo=github)](https://github.com/linuxserver/docker-deluge/packages)
@@ -81,7 +81,7 @@ Find us at:
 
 ## Supported Architectures
 
-We utilise the docker manifest for multi-platform awareness. More information is available from docker [here](https://github.com/docker/distribution/blob/master/docs/spec/manifest-v2-2.md#manifest-list) and our announcement [here](https://blog.linuxserver.io/2019/02/21/the-lsio-pipeline-project/).
+We utilise the docker manifest for multi-platform awareness. More information is available from docker [here](https://distribution.github.io/distribution/spec/manifest-v2-2/#manifest-list) and our announcement [here](https://blog.linuxserver.io/2019/02/21/the-lsio-pipeline-project/).
 
 Simply pulling `lscr.io/linuxserver/deluge:latest` should retrieve the correct image for your arch, but you can also pull specific arch images via tags.
 
@@ -101,15 +101,19 @@ To change the password (recommended) log in to the web interface and go to Prefe
 
 Change the inbound port to 6881 (or whichever port you've mapped for the container) under Preferences->Network, otherwise random ports will be used.
 
+## Read-Only Operation
+
+This image can be run with a read-only container filesystem. For details please [read the docs](https://docs.linuxserver.io/misc/read-only/).
+
+
 ## Usage
 
-Here are some example snippets to help you get started creating a container.
+To help you get started creating a container from this image you can either use docker-compose or the docker cli.
 
 ### docker-compose (recommended, [click here for more info](https://docs.linuxserver.io/general/docker-compose))
 
 ```yaml
 ---
-version: "2.1"
 services:
   deluge:
     image: lscr.io/linuxserver/deluge:latest
@@ -121,11 +125,12 @@ services:
       - DELUGE_LOGLEVEL=error #optional
     volumes:
       - /path/to/deluge/config:/config
-      - /path/to/your/downloads:/downloads
+      - /path/to/downloads:/downloads
     ports:
       - 8112:8112
       - 6881:6881
       - 6881:6881/udp
+      - 58846:58846 #optional
     restart: unless-stopped
 ```
 
@@ -141,28 +146,30 @@ docker run -d \
   -p 8112:8112 \
   -p 6881:6881 \
   -p 6881:6881/udp \
+  -p 58846:58846 `#optional` \
   -v /path/to/deluge/config:/config \
-  -v /path/to/your/downloads:/downloads \
+  -v /path/to/downloads:/downloads \
   --restart unless-stopped \
   lscr.io/linuxserver/deluge:latest
-
 ```
 
 ## Parameters
 
-Container images are configured using parameters passed at runtime (such as those above). These parameters are separated by a colon and indicate `<external>:<internal>` respectively. For example, `-p 8080:80` would expose port `80` from inside the container to be accessible from the host's IP on port `8080` outside the container.
+Containers are configured using parameters passed at runtime (such as those above). These parameters are separated by a colon and indicate `<external>:<internal>` respectively. For example, `-p 8080:80` would expose port `80` from inside the container to be accessible from the host's IP on port `8080` outside the container.
 
 | Parameter | Function |
 | :----: | --- |
 | `-p 8112` | Port for webui |
 | `-p 6881` | Inbound torrent traffic (See App Setup) |
 | `-p 6881/udp` | Inbound torrent traffic (See App Setup) |
+| `-p 58846` | Default deluged port for thin client connectivity |
 | `-e PUID=1000` | for UserID - see below for explanation |
 | `-e PGID=1000` | for GroupID - see below for explanation |
 | `-e TZ=Etc/UTC` | specify a timezone to use, see this [list](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List). |
 | `-e DELUGE_LOGLEVEL=error` | set the loglevel output when running Deluge, default is info for deluged and warning for delgued-web |
 | `-v /config` | deluge configs |
 | `-v /downloads` | torrent download directory |
+| `--read-only=true` | Run container with a read-only filesystem. Please [read the docs](https://docs.linuxserver.io/misc/read-only/). |
 
 ## Environment variables from files (Docker secrets)
 
@@ -171,10 +178,10 @@ You can set any environment variable from a file by using a special prepend `FIL
 As an example:
 
 ```bash
--e FILE__PASSWORD=/run/secrets/mysecretpassword
+-e FILE__MYVAR=/run/secrets/mysecretvariable
 ```
 
-Will set the environment variable `PASSWORD` based on the contents of the `/run/secrets/mysecretpassword` file.
+Will set the environment variable `MYVAR` based on the contents of the `/run/secrets/mysecretvariable` file.
 
 ## Umask for running applications
 
@@ -183,15 +190,20 @@ Keep in mind umask is not chmod it subtracts from permissions based on it's valu
 
 ## User / Group Identifiers
 
-When using volumes (`-v` flags) permissions issues can arise between the host OS and the container, we avoid this issue by allowing you to specify the user `PUID` and group `PGID`.
+When using volumes (`-v` flags), permissions issues can arise between the host OS and the container, we avoid this issue by allowing you to specify the user `PUID` and group `PGID`.
 
 Ensure any volume directories on the host are owned by the same user you specify and any permissions issues will vanish like magic.
 
-In this instance `PUID=1000` and `PGID=1000`, to find yours use `id user` as below:
+In this instance `PUID=1000` and `PGID=1000`, to find yours use `id your_user` as below:
 
 ```bash
-  $ id username
-    uid=1000(dockeruser) gid=1000(dockergroup) groups=1000(dockergroup)
+id your_user
+```
+
+Example output:
+
+```text
+uid=1000(your_user) gid=1000(your_user) groups=1000(your_user)
 ```
 
 ## Docker Mods
@@ -202,53 +214,100 @@ We publish various [Docker Mods](https://github.com/linuxserver/docker-mods) to 
 
 ## Support Info
 
-* Shell access whilst the container is running: `docker exec -it deluge /bin/bash`
-* To monitor the logs of the container in realtime: `docker logs -f deluge`
-* container version number
-  * `docker inspect -f '{{ index .Config.Labels "build_version" }}' deluge`
-* image version number
-  * `docker inspect -f '{{ index .Config.Labels "build_version" }}' lscr.io/linuxserver/deluge:latest`
+* Shell access whilst the container is running:
+
+    ```bash
+    docker exec -it deluge /bin/bash
+    ```
+
+* To monitor the logs of the container in realtime:
+
+    ```bash
+    docker logs -f deluge
+    ```
+
+* Container version number:
+
+    ```bash
+    docker inspect -f '{{ index .Config.Labels "build_version" }}' deluge
+    ```
+
+* Image version number:
+
+    ```bash
+    docker inspect -f '{{ index .Config.Labels "build_version" }}' lscr.io/linuxserver/deluge:latest
+    ```
 
 ## Updating Info
 
-Most of our images are static, versioned, and require an image update and container recreation to update the app inside. With some exceptions (ie. nextcloud, plex), we do not recommend or support updating apps inside the container. Please consult the [Application Setup](#application-setup) section above to see if it is recommended for the image.
+Most of our images are static, versioned, and require an image update and container recreation to update the app inside. With some exceptions (noted in the relevant readme.md), we do not recommend or support updating apps inside the container. Please consult the [Application Setup](#application-setup) section above to see if it is recommended for the image.
 
 Below are the instructions for updating containers:
 
 ### Via Docker Compose
 
-* Update all images: `docker-compose pull`
-  * or update a single image: `docker-compose pull deluge`
-* Let compose update all containers as necessary: `docker-compose up -d`
-  * or update a single container: `docker-compose up -d deluge`
-* You can also remove the old dangling images: `docker image prune`
+* Update images:
+    * All images:
+
+        ```bash
+        docker-compose pull
+        ```
+
+    * Single image:
+
+        ```bash
+        docker-compose pull deluge
+        ```
+
+* Update containers:
+    * All containers:
+
+        ```bash
+        docker-compose up -d
+        ```
+
+    * Single container:
+
+        ```bash
+        docker-compose up -d deluge
+        ```
+
+* You can also remove the old dangling images:
+
+    ```bash
+    docker image prune
+    ```
 
 ### Via Docker Run
 
-* Update the image: `docker pull lscr.io/linuxserver/deluge:latest`
-* Stop the running container: `docker stop deluge`
-* Delete the container: `docker rm deluge`
+* Update the image:
+
+    ```bash
+    docker pull lscr.io/linuxserver/deluge:latest
+    ```
+
+* Stop the running container:
+
+    ```bash
+    docker stop deluge
+    ```
+
+* Delete the container:
+
+    ```bash
+    docker rm deluge
+    ```
+
 * Recreate a new container with the same docker run parameters as instructed above (if mapped correctly to a host folder, your `/config` folder and settings will be preserved)
-* You can also remove the old dangling images: `docker image prune`
+* You can also remove the old dangling images:
 
-### Via Watchtower auto-updater (only use if you don't remember the original parameters)
-
-* Pull the latest image at its tag and replace it with the same env variables in one run:
-
-  ```bash
-  docker run --rm \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  containrrr/watchtower \
-  --run-once deluge
-  ```
-
-* You can also remove the old dangling images: `docker image prune`
-
-**Note:** We do not endorse the use of Watchtower as a solution to automated updates of existing Docker containers. In fact we generally discourage automated updates. However, this is a useful tool for one-time manual updates of containers where you have forgotten the original parameters. In the long term, we highly recommend using [Docker Compose](https://docs.linuxserver.io/general/docker-compose).
+    ```bash
+    docker image prune
+    ```
 
 ### Image Update Notifications - Diun (Docker Image Update Notifier)
 
-* We recommend [Diun](https://crazymax.dev/diun/) for update notifications. Other tools that automatically update containers unattended are not recommended or supported.
+**tip**: We recommend [Diun](https://crazymax.dev/diun/) for update notifications. Other tools that automatically update containers unattended are not recommended or supported.
 
 ## Building locally
 
@@ -273,6 +332,9 @@ Once registered you can define the dockerfile to use with `-f Dockerfile.aarch64
 
 ## Versions
 
+* **26.12.23:** - Replace source for GeoIP database.
+* **07.12.23:** - Add optional port 58846 to readme for thin client connectivity.
+* **07.10.23:** - Install unrar from [linuxserver repo](https://github.com/linuxserver/docker-unrar).
 * **10.08.23:** - Bump unrar to 6.2.10.
 * **30.06.23:** - Bump unrar to 6.2.8, deprecate armhf as per [https://www.linuxserver.io/armhf](https://www.linuxserver.io/armhf).
 * **29.11.22:** - Restore geoip using py3-geoip as an interim measure.

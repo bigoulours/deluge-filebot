@@ -22,20 +22,22 @@ available_architectures:
 param_container_name: "{{ project_name }}"
 param_usage_include_vols: true
 param_volumes:
-  - { vol_path: "/config", vol_host_path: "/path/to/deluge/config", desc: "deluge configs" }
-  - { vol_path: "/downloads", vol_host_path: "/path/to/your/downloads", desc: "torrent download directory" }
+  - { vol_path: "/config", vol_host_path: "/path/to/{{ project_name }}/config", desc: "deluge configs" }
+  - { vol_path: "/downloads", vol_host_path: "/path/to/downloads", desc: "torrent download directory" }
 param_usage_include_ports: true
 param_ports:
   - { external_port: "8112", internal_port: "8112", port_desc: "Port for webui" }
   - { external_port: "6881", internal_port: "6881", port_desc: "Inbound torrent traffic (See App Setup)" }
   - { external_port: "6881", internal_port: "6881/udp", port_desc: "Inbound torrent traffic (See App Setup)" }
-param_usage_include_env: true
-param_env_vars:
-  - { env_var: "TZ", env_value: "Europe/London", desc: "Specify a timezone to use"}
 # optional env variables
 opt_param_usage_include_env: true
 opt_param_env_vars:
   - { env_var: "DELUGE_LOGLEVEL", env_value: "error", desc: "set the loglevel output when running Deluge, default is info for deluged and warning for delgued-web"}
+opt_param_usage_include_ports: true
+opt_param_ports:
+  - { external_port: "58846", internal_port: "58846", port_desc: "Default deluged port for thin client connectivity"}
+
+readonly_supported: true
 
 # application setup block
 app_setup_block_enabled: true
@@ -48,7 +50,10 @@ app_setup_block: |
 
 # changelog
 changelogs:
-  - {date: "10.08.23:", desc: "Bump unrar to 6.2.10."}
+  - { date: "26.12.23:", desc: "Replace source for GeoIP database." }
+  - { date: "07.12.23:", desc: "Add optional port 58846 to readme for thin client connectivity."}
+  - { date: "07.10.23:", desc: "Install unrar from [linuxserver repo](https://github.com/linuxserver/docker-unrar)."}
+  - { date: "10.08.23:", desc: "Bump unrar to 6.2.10."}
   - { date: "30.06.23:", desc: "Bump unrar to 6.2.8, deprecate armhf as per [https://www.linuxserver.io/armhf](https://www.linuxserver.io/armhf)." }
   - { date: "29.11.22:", desc: "Restore geoip using py3-geoip as an interim measure." }
   - { date: "24.11.22:", desc: "Remove GeoIP packages as geoip will not build under Py 3.11 and Deluge still doesn't support geoip2." }
@@ -57,7 +62,7 @@ changelogs:
   - { date: "12.08.22:", desc: "Bump unrar to 6.1.7." }
   - { date: "16.06.22:", desc: "Rebase to Alpine 3.16 from edge." }
   - { date: "22.02.22:", desc: "Rebase to Alpine, config on first startup, add GeoIP." }
-  - { date: "15.01.22:", desc: "Rebase to Focal." }  
+  - { date: "15.01.22:", desc: "Rebase to Focal." }
   - { date: "07.06.21:", desc: "Remove host networking from readme examples" }
   - { date: "23.01.21:", desc: "Deprecate `UMASK_SET` in favor of UMASK in baseimage, see above for more information." }
   - { date: "09.05.19:", desc: "Add python3 requests and future modules." }
