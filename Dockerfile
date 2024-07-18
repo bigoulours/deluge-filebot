@@ -2,7 +2,7 @@
 
 FROM ghcr.io/linuxserver/unrar:latest AS unrar
 
-FROM ghcr.io/linuxserver/baseimage-alpine:edge
+FROM ghcr.io/linuxserver/baseimage-alpine:3.20
 
 # set version label
 ARG BUILD_DATE
@@ -15,8 +15,8 @@ LABEL maintainer="aptalca"
 ENV PYTHON_EGG_CACHE="/config/plugins/.python-eggs" \
   TMPDIR=/run/deluged-temp
 
-ENV FILEBOT_VERSION 4.7.19.5
-ENV FILEBOT_URL https://github.com/bigoulours/filebot/releases/download/$FILEBOT_VERSION/FileBot_$FILEBOT_VERSION-portable.tar.gz
+ENV FILEBOT_VERSION=4.7.19.5
+ENV FILEBOT_URL=https://github.com/bigoulours/filebot/releases/download/$FILEBOT_VERSION/FileBot_$FILEBOT_VERSION-portable.tar.gz
 
 # install software
 RUN \
@@ -41,6 +41,21 @@ RUN \
     "https://mailfud.org/geoip-legacy/GeoIP.dat.gz" \
     | gunzip > /usr/share/GeoIP/GeoIP.dat && \
   printf "Linuxserver.io version: ${VERSION}\nBuild-date: ${BUILD_DATE}" > /build_version && \
+  #Download Filebot
+  mkdir /tmp/filebot && \
+  curl -# -L -f ${FILEBOT_URL} | tar xz -C /tmp/filebot && \
+  mkdir -p /opt/filebot/data && \
+  mkdir -p /opt/filebot/lib/x86_64/ && \
+  cp /tmp/filebot/lib/x86_64/libjnidispatch.so /opt/filebot/lib/x86_64/ && \
+  cp /tmp/filebot/filebot.sh /opt/filebot/ && \
+  cp /tmp/filebot/FileBot.jar /opt/filebot/ && \
+  chmod 777 -R /opt/filebot/data && \
+  ln -s /opt/filebot/filebot.sh /usr/bin/filebot && \
+  # Dependencies
+  apk add --no-cache --upgrade \
+    openjdk21-jre \
+    libmediainfo \
+    && \
   echo "**** cleanup ****" && \
   apk del --purge \
     build-dependencies && \
