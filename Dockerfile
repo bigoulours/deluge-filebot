@@ -2,7 +2,9 @@
 
 FROM ghcr.io/linuxserver/unrar:latest AS unrar
 
-FROM ghcr.io/linuxserver/baseimage-alpine:3.20
+# check alpine version for the right python version
+# https://pkgs.alpinelinux.org/packages?name=python3
+FROM ghcr.io/linuxserver/baseimage-alpine:3.19
 
 # set version label
 ARG BUILD_DATE
@@ -24,19 +26,20 @@ RUN \
   apk add --no-cache --upgrade --virtual=build-dependencies \
     build-base && \
   echo "**** install packages ****" && \
-  apk add --no-cache --upgrade --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
+  apk add --no-cache --upgrade \
     python3 \
     py3-future \
-    py3-geoip \
+    py3-geoip2 \
     py3-requests \
     p7zip && \
   if [ -z ${DELUGE_VERSION+x} ]; then \
-    DELUGE_VERSION=$(curl -sL "http://dl-cdn.alpinelinux.org/alpine/edge/community/x86_64/APKINDEX.tar.gz" | tar -xz -C /tmp \
+    DELUGE_VERSION=$(curl -sL "http://dl-cdn.alpinelinux.org/alpine/v3.19/community/x86_64/APKINDEX.tar.gz" | tar -xz -C /tmp \
     && awk '/^P:deluge$/,/V:/' /tmp/APKINDEX | sed -n 2p | sed 's/^V://'); \
   fi && \
   apk add -U --upgrade --no-cache \
     deluge==${DELUGE_VERSION} && \
   echo "**** grab GeoIP database ****" && \
+  mkdir -p /usr/share/GeoIP && \
   curl -L --retry 10 --retry-max-time 60 --retry-all-errors \
     "https://mailfud.org/geoip-legacy/GeoIP.dat.gz" \
     | gunzip > /usr/share/GeoIP/GeoIP.dat && \
@@ -51,7 +54,7 @@ RUN \
   cp /tmp/filebot/FileBot.jar /opt/filebot/ && \
   chmod 777 -R /opt/filebot/data && \
   ln -s /opt/filebot/filebot.sh /usr/bin/filebot && \
-  # Dependencies
+  # Dependencies /!\ update openjdk when upgrading python/alpine /!\
   apk add --no-cache --upgrade \
     openjdk21-jre \
     libmediainfo \
